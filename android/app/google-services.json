@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "384954322434",
+    "project_id": "eda-gotova-c50e3",
+    "storage_bucket": "eda-gotova-c50e3.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:384954322434:android:7e063c27ef38ac0684611b",
+        "android_client_info": {
+          "package_name": "com.example.eda_gotova"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA3qFtxsUChBg6Wgd9OJBpz38QHl9iaAz4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,38 @@
+name: eda_gotova
+description: "A new Flutter project."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.2.6 <4.0.0'
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.2
+  # bloc:
+  flutter_bloc:
+  equatable:
+  # Навигация:
+  auto_route:
+  # GetIt
+  get_it:
+  # firebase
+  firebase_core:
+  firebase_auth:
+  cloud_firestore:
+
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^2.0.0
+  # Навигация:
+  build_runner:
+  auto_route_generator:
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/image/
