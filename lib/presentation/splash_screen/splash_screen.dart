@@ -26,16 +26,15 @@ class _SplachScreenState extends State<SplachScreen> {
     });
   }
 
-
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<AuthBloc, AuthState>(
       builder: (context, state) {
         if (state.status == AuthStatus.authenticated) {
           pathForAuth = '/main';
-          } else {
-           pathForAuth = '/auth'; 
-          }
+        } else {
+          pathForAuth = '/auth';
+        }
         return Scaffold(
           body: Center(
             child: Column(

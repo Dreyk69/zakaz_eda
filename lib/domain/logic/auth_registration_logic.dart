@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../app/blocs/sign_in_bloc/sign_in_bloc.dart';
 import '../../constants/string.dart';
 import '../../constants/styles/icons.dart';
 
@@ -78,4 +80,38 @@ String? validatorForName(String? val, {TextEditingController? nameController}) {
   } else {
     return null;
   }
+}
+
+late final GlobalKey<FormState> _formKey;
+late final TextEditingController _emailController;
+late final TextEditingController _passwordController;
+
+void _actionForButtonAuth({
+  required GlobalKey<FormState> formKey,
+  required BuildContext context,
+  required TextEditingController emailController,
+  required TextEditingController passwordController,
+}) {
+  _formKey = formKey;
+  _emailController = emailController;
+  _passwordController = passwordController;
+  if (_formKey.currentState != null && _formKey.currentState!.validate()) {
+    context.read<SignInBloc>().add(SignInRequired(
+          email: _emailController.text,
+          password: _passwordController.text,
+        ));
+  }
+}
+
+void publicFunctionActionForButtonAuth({
+  required GlobalKey<FormState> formKey,
+  required BuildContext context,
+  required TextEditingController emailController,
+  required TextEditingController passwordController,
+}) {
+  _actionForButtonAuth(
+      formKey: formKey,
+      context: context,
+      emailController: emailController,
+      passwordController: passwordController);
 }

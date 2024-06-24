@@ -5,9 +5,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../app/blocs/auth_bloc/auth_bloc.dart';
 import '../../app/blocs/sign_in_bloc/sign_in_bloc.dart';
-import '../../constants/styles/icons.dart';
-import '../../constants/styles/styles_text_field.dart';
-import '../../domain/logic/auth_registration_logic.dart';
+
+import 'widgets/button_auth.dart';
+import 'widgets/button_registration.dart';
+import 'widgets/text_field_email.dart';
+import 'widgets/text_field_password.dart';
 
 @RoutePage()
 class AuthScreen extends StatefulWidget {
@@ -18,50 +20,19 @@ class AuthScreen extends StatefulWidget {
 }
 
 class _AuthScreenState extends State<AuthScreen> {
-  final emailController = TextEditingController();
-  String? _errorMsgForEmail;
-  final passwordController = TextEditingController();
-  String? _errorMsgForPassword;
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-  late final SignInBloc _signInBloc;
-  bool _signInRequired = false;
-  @override
-  void initState() {
-    super.initState();
-    _signInBloc =
-        SignInBloc(myUserRepository: context.read<AuthBloc>().userRepository);
-  }
-
-  @override
-  void dispose() {
-    _signInBloc.close();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider<SignInBloc>(
-      create: (context) => _signInBloc,
+      create: (context) =>
+          SignInBloc(myUserRepository: context.read<AuthBloc>().userRepository),
       child: BlocBuilder<SignInBloc, SignInState>(
         builder: (context, state) {
-          if (state is SignInInitial ||
-              state is SignInSuccess ||
-              state is SignInProcess ||
-              state is SignInFailure) {
-            if (state is SignInInitial) {
-              _signInRequired = false;
-            } else if (state is SignInSuccess) {
-              _signInRequired = false;
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                context.router.replaceNamed('/main');
-              });
-            } else if (state is SignInProcess) {
-              _signInRequired = true;
-            } else if (state is SignInFailure) {
-              _signInRequired = false;
-              _errorMsgForPassword =
-                  'Неправильный адрес электронной почты или пароль';
-            }
+          if (state is SignInSuccess) {
+            context.router.replaceNamed('/main');
           }
           return Scaffold(
             body: Center(
@@ -75,74 +46,39 @@ class _AuthScreenState extends State<AuthScreen> {
                     children: [
                       logotip,
                       const SizedBox(height: 10),
-                      TextFormField(
-                          controller: emailController,
-                          textInputAction: TextInputAction.next,
-                          autocorrect: false,
-                          keyboardType: TextInputType.emailAddress,
-                          validator: (val) {
-                            return validatorForEmail(val);
-                          },
-                          decoration: StylesTextField(
-                            hintText: 'Введите Email',
-                            prefixIcon: emailIcon,
-                            errorText: _errorMsgForEmail,
-                          )),
-                      const SizedBox(height: 15),
-                      TextFormField(
-                        controller: passwordController,
-                        obscureText: obscurePassword,
-                        keyboardType: TextInputType.visiblePassword,
-                        validator: (val) {
-                          return validatorForPassword(val);
-                        },
-                        decoration: StylesTextField(
-                            hintText: 'Введите пароль',
-                            prefixIcon: passwordIcon,
-                            errorText: _errorMsgForPassword,
-                            suffixIcon: IconButton(
-                              onPressed: () {
-                                setState(() {
-                                  passwordDisplay();
-                                });
-                              },
-                              icon: Icon(iconPassword),
-                            )),
+                      TextFieldEmail(
+                        emailController: _emailController,
                       ),
                       const SizedBox(height: 15),
-                      !_signInRequired
-                          ? Column(
+                      state is SignInFailure
+                          ? TextFieldPassword(
+                              passwordController: _passwordController,
+                              errorMsg:
+                                  'Неправильный адрес электронной почты или пароль',
+                            )
+                          : TextFieldPassword(
+                              passwordController: _passwordController,
+                            ),
+                      const SizedBox(height: 15),
+                      state is SignInProcess
+                          ? const CircularProgressIndicator()
+                          : Column(
                               children: [
                                 SizedBox(
                                   width: double.infinity,
-                                  child: FilledButton(
-                                    onPressed: () {
-                                      if (_formKey.currentState != null &&
-                                          _formKey.currentState!.validate()) {
-                                        context
-                                            .read<SignInBloc>()
-                                            .add(SignInRequired(
-                                              emailController.text,
-                                              passwordController.text,
-                                            ));
-                                      }
-                                    },
-                                    child: const Text('Войти'),
+                                  child: BottonAuth(
+                                    formKey: _formKey,
+                                    emailController: _emailController,
+                                    passwordController: _passwordController,
                                   ),
                                 ),
                                 const SizedBox(height: 10),
-                                SizedBox(
+                                const SizedBox(
                                   width: double.infinity,
-                                  child: FilledButton(
-                                    onPressed: () {
-                                      context.router.replaceNamed('/registration');
-                                    },
-                                    child: const Text('Регистрация'),
-                                  ),
+                                  child: ButtonRegistation(),
                                 ),
                               ],
-                            )
-                          : const CircularProgressIndicator()
+                            ),
                     ],
                   ),
                 ),

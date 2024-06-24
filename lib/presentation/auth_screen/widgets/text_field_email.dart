@@ -5,19 +5,26 @@ import '../../../constants/styles/styles_text_field.dart';
 import '../../../domain/logic/auth_registration_logic.dart';
 
 class TextFieldEmail extends StatefulWidget {
-  const TextFieldEmail({super.key});
+  final TextEditingController emailController;
+  const TextFieldEmail({super.key, required this.emailController});
 
   @override
   State<TextFieldEmail> createState() => _TextFieldEmailState();
 }
 
 class _TextFieldEmailState extends State<TextFieldEmail> {
-  final emailController = TextEditingController();
-  String? _errorMsgForEmail;
+  late final TextEditingController _emailController;
+
+  @override
+  void initState() {
+    super.initState();
+    _emailController = widget.emailController;
+  }
+
   @override
   Widget build(BuildContext context) {
     return TextFormField(
-        controller: emailController,
+        controller: _emailController,
         textInputAction: TextInputAction.next,
         autocorrect: false,
         keyboardType: TextInputType.emailAddress,
@@ -27,7 +34,6 @@ class _TextFieldEmailState extends State<TextFieldEmail> {
         decoration: StylesTextField(
           hintText: 'Введите Email',
           prefixIcon: emailIcon,
-          errorText: _errorMsgForEmail,
         ));
   }
 }
