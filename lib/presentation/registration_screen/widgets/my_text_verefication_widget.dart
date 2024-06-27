@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class MyTextVerefication extends StatelessWidget {
   final String text;
-  final bool verefication;
+  final ValueNotifier<bool> verefication;
 
   const MyTextVerefication({
     super.key,
@@ -12,11 +12,16 @@ class MyTextVerefication extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      text,
-      style: TextStyle(
-        color: verefication ? Colors.green : Colors.black,
-      ),
+    return ValueListenableBuilder<bool>(
+      valueListenable: verefication,
+      builder: (context, value, child) {
+        return Text(
+          text,
+          style: TextStyle(
+            color: value ? Colors.green : Colors.black,
+          ),
+        );
+      },
     );
   }
 }

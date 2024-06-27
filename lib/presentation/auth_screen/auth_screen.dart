@@ -7,9 +7,9 @@ import '../../app/blocs/auth_bloc/auth_bloc.dart';
 import '../../app/blocs/sign_in_bloc/sign_in_bloc.dart';
 
 import 'widgets/button_auth.dart';
-import 'widgets/button_registration.dart';
-import 'widgets/text_field_email.dart';
-import 'widgets/text_field_password.dart';
+import 'widgets/button_navigator.dart';
+import '../widgets/text_field_email.dart';
+import 'widgets/text_field_password_auth.dart';
 
 @RoutePage()
 class AuthScreen extends StatefulWidget {
@@ -25,67 +25,69 @@ class _AuthScreenState extends State<AuthScreen> {
   final _formKey = GlobalKey<FormState>();
 
   @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocProvider<SignInBloc>(
       create: (context) =>
           SignInBloc(myUserRepository: context.read<AuthBloc>().userRepository),
-      child: BlocBuilder<SignInBloc, SignInState>(
-        builder: (context, state) {
+      child: BlocListener<SignInBloc, SignInState>(
+        listener: (context, state) {
           if (state is SignInSuccess) {
             context.router.replaceNamed('/main');
           }
-          return Scaffold(
-            body: Center(
-                child: Form(
-              key: _formKey,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 80),
-                child: SingleChildScrollView(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      logotip,
-                      const SizedBox(height: 10),
-                      TextFieldEmail(
-                        emailController: _emailController,
-                      ),
-                      const SizedBox(height: 15),
-                      state is SignInFailure
-                          ? TextFieldPassword(
-                              passwordController: _passwordController,
-                              errorMsg:
-                                  'Неправильный адрес электронной почты или пароль',
-                            )
-                          : TextFieldPassword(
-                              passwordController: _passwordController,
-                            ),
-                      const SizedBox(height: 15),
-                      state is SignInProcess
-                          ? const CircularProgressIndicator()
-                          : Column(
-                              children: [
-                                SizedBox(
-                                  width: double.infinity,
-                                  child: BottonAuth(
+        },
+        child: BlocBuilder<SignInBloc, SignInState>(
+          builder: (context, state) {
+            return Scaffold(
+              body: Center(
+                  child: Form(
+                key: _formKey,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 80),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        logotip,
+                        const SizedBox(height: 10),
+                        TextFieldEmail(
+                          emailController: _emailController,
+                        ),
+                        const SizedBox(height: 15),
+                        TextFieldPasswordAuth(
+                          passwordController: _passwordController,
+                          errorMsg: state is SignInFailure
+                              ? 'Неправильный адрес электронной почты или пароль'
+                              : null,
+                        ),
+                        const SizedBox(height: 15),
+                        state is SignInProcess
+                            ? const CircularProgressIndicator()
+                            : Column(
+                                children: [
+                                  BottonAuth(
                                     formKey: _formKey,
                                     emailController: _emailController,
                                     passwordController: _passwordController,
                                   ),
-                                ),
-                                const SizedBox(height: 10),
-                                const SizedBox(
-                                  width: double.infinity,
-                                  child: ButtonRegistation(),
-                                ),
-                              ],
-                            ),
-                    ],
+                                  const SizedBox(height: 10),
+                                  const ButtonNavigator(),
+                                ],
+                              ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            )),
-          );
-        },
+              )),
+            );
+          },
+        ),
       ),
     );
   }

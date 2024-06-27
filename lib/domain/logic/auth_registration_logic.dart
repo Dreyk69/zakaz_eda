@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../app/blocs/sign_in_bloc/sign_in_bloc.dart';
+import '../../app/blocs/sign_up_bloc/sign_up_bloc.dart';
 import '../../constants/string.dart';
 import '../../constants/styles/icons.dart';
+import '../user_repository/lib/user_repository.dart';
 
-String? validatorForEmail(String? val) {
+String? validatorEmail(String? val) {
   if (val!.isEmpty) {
     return 'Пожалуйста, заполните это поле';
   } else if (!emailRexExp.hasMatch(val)) {
@@ -15,7 +17,7 @@ String? validatorForEmail(String? val) {
   }
 }
 
-String? validatorForPassword(String? val) {
+String? validatorPassword(String? val) {
   if (val!.isEmpty) {
     return 'Пожалуйста, заполните это поле';
   } else if (!passwordRexExp.hasMatch(val)) {
@@ -28,7 +30,7 @@ String? validatorForPassword(String? val) {
 bool obscurePassword = true;
 IconData iconPassword = eysIcon;
 
-dynamic passwordDisplay() {
+dynamic displayPassword() {
   obscurePassword = !obscurePassword;
   if (obscurePassword) {
     iconPassword = eysIcon;
@@ -37,41 +39,22 @@ dynamic passwordDisplay() {
   }
 }
 
-bool containsUpperCase = false;
-bool containsLowerCase = false;
-bool containsNumber = false;
-bool containsSpecialChar = false;
-bool contains8Length = false;
-
-dynamic passwordVerification(String? val) {
-  if (val!.contains(RegExp(r'[A-Z]'))) {
-    containsUpperCase = true;
-  } else {
-    containsUpperCase = false;
-  }
-  if (val.contains(RegExp(r'[a-z]'))) {
-    containsLowerCase = true;
-  } else {
-    containsLowerCase = false;
-  }
-  if (val.contains(RegExp(r'[0-9]'))) {
-    containsNumber = true;
-  } else {
-    containsNumber = false;
-  }
-  if (val.contains(specialCharRexExp)) {
-    containsSpecialChar = true;
-  } else {
-    containsSpecialChar = false;
-  }
-  if (val.length >= 8) {
-    contains8Length = true;
-  } else {
-    contains8Length = false;
-  }
+dynamic passwordVerification({
+  String? val,
+  required ValueNotifier<bool> containsUpperCase,
+  required ValueNotifier<bool> containsLowerCase,
+  required ValueNotifier<bool> containsNumber,
+  required ValueNotifier<bool> containsSpecialChar,
+  required ValueNotifier<bool> contains8Length,
+}) {
+  containsUpperCase.value = val!.contains(RegExp(r'[A-Z]'));
+  containsLowerCase.value = val.contains(RegExp(r'[a-z]'));
+  containsNumber.value = val.contains(RegExp(r'[0-9]'));
+  containsSpecialChar.value = val.contains(RegExp(r'[!@#\$&*~_-]'));
+  contains8Length.value = val.length >= 8;
 }
 
-String? validatorForName(String? val, {TextEditingController? nameController}) {
+String? validatorName(String? val, {TextEditingController? nameController}) {
   List<String?>? words = val!.trim().split(' ');
   if (val.isEmpty) {
     return 'Пожалуйста, заполните это поле';
@@ -82,36 +65,33 @@ String? validatorForName(String? val, {TextEditingController? nameController}) {
   }
 }
 
-late final GlobalKey<FormState> _formKey;
-late final TextEditingController _emailController;
-late final TextEditingController _passwordController;
-
-void _actionForButtonAuth({
+void actionButtonAuth({
   required GlobalKey<FormState> formKey,
   required BuildContext context,
   required TextEditingController emailController,
   required TextEditingController passwordController,
 }) {
-  _formKey = formKey;
-  _emailController = emailController;
-  _passwordController = passwordController;
-  if (_formKey.currentState != null && _formKey.currentState!.validate()) {
+  if (formKey.currentState != null && formKey.currentState!.validate()) {
     context.read<SignInBloc>().add(SignInRequired(
-          email: _emailController.text,
-          password: _passwordController.text,
+          email: emailController.text,
+          password: passwordController.text,
         ));
   }
 }
 
-void publicFunctionActionForButtonAuth({
+void actionButtonRegistation({
   required GlobalKey<FormState> formKey,
   required BuildContext context,
   required TextEditingController emailController,
   required TextEditingController passwordController,
+  required TextEditingController nameController,
 }) {
-  _actionForButtonAuth(
-      formKey: formKey,
-      context: context,
-      emailController: emailController,
-      passwordController: passwordController);
+  if (formKey.currentState != null && formKey.currentState!.validate()) {
+    MyUser myUser = MyUser.empty;
+    myUser =
+        myUser.copyWith(email: emailController.text, name: nameController.text);
+    context
+        .read<SignUpBloc>()
+        .add(SignUpRequired(user: myUser, password: passwordController.text));
+  }
 }
